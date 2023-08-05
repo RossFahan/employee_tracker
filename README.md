@@ -18,9 +18,9 @@ This is a simple employee management system that allows users to manage a relati
 
 
 ## Video Demo
-![VidGif](./Images/demo.gif)
+![VidGif](./Assets/demo.gif)
 
-[Video Demo Link](https://drive.google.com/file/d/17BGbxT8boqfsNkYvcN7qiy00abYwFCBH/view?usp=sharing)
+[Video Demo Link](https://drive.google.com/file/d/1z7uVRJ7E7W1Kako82NR865b_OBUIJNd2)
 
 ## Installation 
 

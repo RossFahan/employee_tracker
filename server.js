@@ -278,12 +278,12 @@ function menuPrompt() {
             message: 'What would you like to do?:\n',
             choices: [
                 'View all employees',
-                'Add Employee',
-                'Update Employee Role',
                 'View all roles',
-                'Add a role',
                 'View All Departments',
+                'Add Employee',
                 'Add Department',
+                'Add a role',
+                'Update Employee Role',
                 'Exit'
             ]
         }
