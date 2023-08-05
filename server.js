@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise'); 
 const inquirer = require('inquirer');
+const queries = require('./lib/queries');
 
 // Create a connection to db
 const db = mysql.createConnection({
