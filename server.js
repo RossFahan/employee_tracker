@@ -1,5 +1,7 @@
+//Requirements
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+require('console.table');
 
 // Create a connection to the database
 const db = mysql.createConnection({
@@ -27,7 +29,7 @@ function viewAllDepartments() {
             console.error('Error fetching departments:', err);
             return;
         }
-        console.log(results);
+        console.table('Departments:\n', results);
         menuPrompt(); // Recursively call the menu
     });
 }
@@ -38,7 +40,7 @@ function viewAllRoles() {
             console.error('Error fetching roles:', err);
             return;
         }
-        console.log(results);
+        console.table('Roles:\n', results);
         menuPrompt(); // Recursively call the menu
     });
 }
@@ -49,7 +51,7 @@ function viewAllEmployees() {
             console.error('Error fetching employees:', err);
             return;
         }
-        console.log(results);
+        console.table('Employees:\n', results);
         menuPrompt(); // Recursively call the menu
     });
 }
