@@ -35,22 +35,24 @@ function viewAllDepartments() {
 }
 
 function viewAllRoles() {
-    db.query('SELECT * FROM role', (err, results) => {
+    db.query('SELECT role.id, role.title, role.salary, department.name AS department FROM role JOIN department ON role.department_id = department.id', (err, results) => {
         if (err) {
             console.error('Error fetching roles:', err);
             return;
         }
+        
         console.table('Roles:\n', results);
         menuPrompt(); // Recursively call the menu
     });
 }
 
 function viewAllEmployees() {
-    db.query('SELECT * FROM employee', (err, results) => {
+    db.query('SELECT e.id, e.first_name, e.last_name, role.title AS job_title, department.name AS department, role.salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e LEFT JOIN role ON e.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee m ON e.manager_id = m.id', (err, results) => {
         if (err) {
             console.error('Error fetching employees:', err);
             return;
         }
+        
         console.table('Employees:\n', results);
         menuPrompt(); // Recursively call the menu
     });
@@ -83,56 +85,61 @@ function addDepartment() {
 }
 // Function to add a new employee
 function addEmployee() {
-    // Fetch available managers from the database
-    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS managerName FROM employee', (managerErr, managerResults) => {
-        if (managerErr) {
-            console.error('Error fetching managers:', managerErr);
+    // Fetch available roles from the database
+    db.query('SELECT id, title FROM role', (roleErr, roleResults) => {
+        if (roleErr) {
+            console.error('Error fetching roles:', roleErr);
             return;
         }
 
-        const managerChoices = [{
-            name: 'None',  // Add "None" choice
-            value: null    // Set value to null
-        },
-        managerResults.map(manager => ({
-            name: manager.managerName,
-            value: manager.id
-        }))
-    ];
+        const roleChoices = roleResults.map(role => ({
+            name: role.title,
+            value: role.id
+        }));
 
-        inquirer.prompt([
-            {
-                type: 'input',
-                name: 'firstName',
-                message: "Enter the employee's first name:"
-            },
-            {
-                type: 'input',
-                name: 'lastName',
-                message: "Enter the employee's last name:"
-            },
-            {
-                type: 'input',
-                name: 'roleTitle',
-                message: "Enter the employee's role:"
-            },
-            {
-                type: 'list',
-                name: 'managerId',
-                message: "Select the employee's manager:",
-                choices: managerChoices
+        // Fetch available managers from the database
+        db.query('SELECT id, CONCAT(first_name, " ", last_name) AS managerName FROM employee', (managerErr, managerResults) => {
+            if (managerErr) {
+                console.error('Error fetching managers:', managerErr);
+                return;
             }
-        ]).then((answers) => {
-            const { firstName, lastName, roleTitle, managerId } = answers;
 
-            // Fetch role ID based on the entered role title
-            db.query('SELECT id FROM role WHERE title = ?', [roleTitle], (roleErr, roleResults) => {
-                if (roleErr) {
-                    console.error('Error fetching role ID:', roleErr);
-                    return;
+            const managerChoices = [
+                {
+                    name: 'None',  // Add "None" choice
+                    value: null    // Set value to null
+                },
+                ...managerResults.map(manager => ({
+                    name: manager.managerName,
+                    value: manager.id
+                }))
+            ];
+
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'firstName',
+                    message: "Enter the employee's first name:"
+                },
+                {
+                    type: 'input',
+                    name: 'lastName',
+                    message: "Enter the employee's last name:"
+                },
+                {
+                    type: 'list',  
+                    name: 'roleId',  
+                    message: "Select the employee's role:",  
+                    choices: roleChoices 
+                },
+                {
+                    type: 'list',
+                    name: 'managerId',
+                    message: "Select the employee's manager:",
+                    choices: managerChoices
                 }
-
-                const roleId = roleResults[0] ? roleResults[0].id : null;
+            ]).then((answers) => {
+                const { firstName, lastName, roleId, managerId } = answers;
 
                 db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
                     [firstName, lastName, roleId, managerId],
@@ -145,12 +152,13 @@ function addEmployee() {
                         menuPrompt();
                     }
                 );
+            }).catch((err) => {
+                console.error('Error:', err);
             });
-        }).catch((err) => {
-            console.error('Error:', err);
         });
     });
 }
+
 
 // Function to add a new role
 function addRole() {

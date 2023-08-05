@@ -1,4 +1,4 @@
-# Logo Generator
+# Employee Tracker
 
 ## Technology Used 
 
@@ -14,7 +14,7 @@
 
 ## Description 
 
-This is a simple employee management system that allows users to manage a relational database of employees. The user can define an employees role, manager, department, and salary, and view the relationships in a table.
+This is a simple employee management system that allows users to manage a relational database of employees. The user can define an employees role, manager, department, and salary, then view the relationships in a table.
 
 
 ## Video Demo
