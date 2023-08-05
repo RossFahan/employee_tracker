@@ -79,6 +79,71 @@ function addDepartment() {
         console.error('Error:', err);
     });
 }
+// Function to add a new employee
+function addEmployee() {
+    // Fetch available managers from the database
+    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS managerName FROM employee', (managerErr, managerResults) => {
+        if (managerErr) {
+            console.error('Error fetching managers:', managerErr);
+            return;
+        }
+
+        const managerChoices = managerResults.map(manager => ({
+            name: manager.managerName,
+            value: manager.id
+        }));
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: "Enter the employee's first name:"
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: "Enter the employee's last name:"
+            },
+            {
+                type: 'input',
+                name: 'roleTitle',
+                message: "Enter the employee's role:"
+            },
+            {
+                type: 'list',
+                name: 'managerId',
+                message: "Select the employee's manager:",
+                choices: managerChoices
+            }
+        ]).then((answers) => {
+            const { firstName, lastName, roleTitle, managerId } = answers;
+
+            // Fetch role ID based on the entered role title
+            db.query('SELECT id FROM role WHERE title = ?', [roleTitle], (roleErr, roleResults) => {
+                if (roleErr) {
+                    console.error('Error fetching role ID:', roleErr);
+                    return;
+                }
+
+                const roleId = roleResults[0] ? roleResults[0].id : null;
+
+                db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
+                    [firstName, lastName, roleId, managerId],
+                    (insertErr) => {
+                        if (insertErr) {
+                            console.error('Error adding employee:', insertErr);
+                        } else {
+                            console.log('Employee added successfully.');
+                        }
+                        menuPrompt();
+                    }
+                );
+            });
+        }).catch((err) => {
+            console.error('Error:', err);
+        });
+    });
+}
 
 // Function to add a new role
 function addRole() {
