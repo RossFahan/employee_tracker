@@ -1,63 +1,97 @@
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const { viewAllDepartments,
-    viewAllRoles,
-    viewAllEmployees,
-    addDepartment,
-    addRole,
-    addEmployee
-} = require('./lib/queries');
 
-// Create a connection to db
+// Create a connection to the database
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'password',
     database: 'employee_tracker_db'
-},
-    console.log(`Connected to the employee_tracker_db database.`)
-);
+});
 
+// Connect to the database
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to database:', err);
+        return;
+    }
+    console.log('Connected to the employee_tracker_db database.');
+
+    // Start the application
+    menuPrompt();
+});
+
+function viewAllDepartments() {
+    db.query('SELECT * FROM department', (err, results) => {
+        if (err) {
+            console.error('Error fetching departments:', err);
+            return;
+        }
+        console.log(results);
+        menuPrompt();
+    });
+}
+
+function viewAllRoles() {
+    db.query('SELECT * FROM role', (err, results) => {
+        if (err) {
+            console.error('Error fetching roles:', err);
+            return;
+        }
+        console.log(results);
+        menuPrompt();
+    });
+}
+
+function viewAllEmployees() {
+    db.query('SELECT * FROM employee', (err, results) => {
+        if (err) {
+            console.error('Error fetching employees:', err);
+            return;
+        }
+        console.log(results);
+        menuPrompt();
+    });
+}
 
 // Function to display main menu and handle user input
-async function menuPrompt() {
-    try {
-        // Extract via object deconstruction
-        const { selection } = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'selection',
-                message: 'What would you like to do?:\n',
-                choices: [
-                    'View all employees',
-                    'Add Employee',
-                    'View all roles',
-                    'Add a role',
-                    'View All Departments',
-                    'Add Department',
-                    'Exit'
-                ]
-            }
-        ]);
+function menuPrompt() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'selection',
+            message: 'What would you like to do?:\n',
+            choices: [
+                'View all employees',
+                'Add Employee',
+                'View all roles',
+                'Add a role',
+                'View All Departments',
+                'Add Department',
+                'Exit'
+            ]
+        }
+    ]).then((answers) => {
+        const selection = answers.selection;
 
         switch (selection) {
             case 'View all employees':
-                console.log(await viewAllEmployees(db));
+                viewAllEmployees();
                 break;
             case 'Add Employee':
-                await addEmployee();
+                addEmployee();
                 break;
             case 'View all roles':
-                console.log(await viewAllRoles(db));
+                viewAllRoles();
                 break;
             case 'Add a role':
-                await addRole();
+                addRole();
                 break;
             case 'View All Departments':
-                console.log(await viewAllDepartments(db));
+                viewAllDepartments();
                 break;
             case 'Add Department':
-                await addDepartment();
+                addDepartment();
                 break;
             case 'Exit':
                 console.log('Exiting...');
@@ -66,11 +100,9 @@ async function menuPrompt() {
                 break;
             default:
                 console.log('Invalid choice.\n');
-                menuPrompt(); //recursively call the function if input invalid to restart process
+                menuPrompt(); // Recursively call the function if input is invalid to restart the process
         }
-    } catch (err) {
+    }).catch((err) => {
         console.error('Error:', err);
-    }
+    });
 }
-
-menuPrompt();
