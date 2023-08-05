@@ -90,10 +90,15 @@ function addEmployee() {
             return;
         }
 
-        const managerChoices = managerResults.map(manager => ({
+        const managerChoices = [{
+            name: 'None',  // Add "None" choice
+            value: null    // Set value to null
+        },
+        managerResults.map(manager => ({
             name: manager.managerName,
             value: manager.id
-        }));
+        }))
+    ];
 
         inquirer.prompt([
             {
@@ -197,6 +202,65 @@ function addRole() {
     });
 }
 
+
+function updateEmployeeRole() {
+    // Fetch available employees from the database
+    db.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM employee', (employeeErr, employeeResults) => {
+        if (employeeErr) {
+            console.error('Error fetching employees:', employeeErr);
+            return;
+        }
+
+        const employeeChoices = employeeResults.map(employee => ({
+            name: employee.employeeName,
+            value: employee.id
+        }));
+
+        // Fetch available roles from the database
+        db.query('SELECT id, title FROM role', (roleErr, roleResults) => {
+            if (roleErr) {
+                console.error('Error fetching roles:', roleErr);
+                return;
+            }
+
+            const roleChoices = roleResults.map(role => ({
+                name: role.title,
+                value: role.id
+            }));
+
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employeeId',
+                    message: "Select the employee to update:",
+                    choices: employeeChoices
+                },
+                {
+                    type: 'list',
+                    name: 'roleId',
+                    message: "Select the employee's new role:",
+                    choices: roleChoices
+                }
+            ]).then((answers) => {
+                const { employeeId, roleId } = answers;
+                db.query('UPDATE employee SET role_id = ? WHERE id = ?',
+                    [roleId, employeeId],
+                    (updateErr) => {
+                        if (updateErr) {
+                            console.error('Error updating employee role:', updateErr);
+                        } else {
+                            console.log('Employee role updated successfully.');
+                        }
+                        menuPrompt();
+                    }
+                );
+            }).catch((err) => {
+                console.error('Error:', err);
+            });
+        });
+    });
+}
+
 // Function to display main menu and handle user input
 function menuPrompt() {
     inquirer.prompt([
@@ -207,6 +271,7 @@ function menuPrompt() {
             choices: [
                 'View all employees',
                 'Add Employee',
+                'Update Employee Role',
                 'View all roles',
                 'Add a role',
                 'View All Departments',
@@ -223,6 +288,9 @@ function menuPrompt() {
                 break;
             case 'Add Employee':
                 addEmployee();
+                break;
+            case 'Update Employee Role':
+                updateEmployeeRole();
                 break;
             case 'View all roles':
                 viewAllRoles();
