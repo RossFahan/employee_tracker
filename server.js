@@ -1,6 +1,6 @@
 const mysql = require('mysql2/promise'); 
 const inquirer = require('inquirer');
-const queries = require('./lib/queries');
+const { menuPrompt }  = require('./lib/queries');
 
 // Create a connection to db
 const db = mysql.createConnection({
@@ -36,19 +36,19 @@ async function menuPrompt() {
 
         switch (selection) {
             case 'View all employees':
-                await viewAllEmployees();
+                console.log(await viewAllEmployees(db));
                 break;
             case 'Add Employee':
                 await addEmployee();
                 break;
             case 'View all roles':
-                await viewAllRoles();
+                console.log(await viewAllRoles(db));
                 break;
             case 'Add a role':
                 await addRole();
                 break;
             case 'View All Departments':
-                await viewAllDepartments();
+                console.log(await viewAllDepartments(db));
                 break;
             case 'Add Department':
                 await addDepartment();
@@ -60,7 +60,7 @@ async function menuPrompt() {
                 break;
             default:
                 console.log('Invalid choice.\n');
-                menuPrompt();
+                menuPrompt(); //recursively call the function if input invalid to restart process
         }
     } catch (err) {
         console.error('Error:', err);
