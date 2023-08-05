@@ -28,7 +28,7 @@ function viewAllDepartments() {
             return;
         }
         console.log(results);
-        menuPrompt();
+        menuPrompt(); // Recursively call the menu
     });
 }
 
@@ -39,7 +39,7 @@ function viewAllRoles() {
             return;
         }
         console.log(results);
-        menuPrompt();
+        menuPrompt(); // Recursively call the menu
     });
 }
 
@@ -50,9 +50,36 @@ function viewAllEmployees() {
             return;
         }
         console.log(results);
-        menuPrompt();
+        menuPrompt(); // Recursively call the menu
     });
 }
+
+// Function to add a new department
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'What is the name of the department?:'
+        }
+    ]).then((answers) => {
+        const { name } = answers;
+        db.query('INSERT INTO department (name) VALUES (?)',
+            [name],
+            (err, results) => {
+                if (err) {
+                    console.error('Error adding department:', err);
+                } else {
+                    console.log('Department added successfully.');
+                }
+                menuPrompt();
+            }
+        );
+    }).catch((err) => {
+        console.error('Error:', err);
+    });
+}
+
 
 // Function to display main menu and handle user input
 function menuPrompt() {
