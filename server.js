@@ -20,7 +20,7 @@ async function menuPrompt() {
             {
                 type: 'list',
                 name: 'selection',
-                message: 'What would you like to do?:',
+                message: 'What would you like to do?:\n',
                 choices: [
                     'View all employees',
                     'Add Employee',
@@ -32,9 +32,36 @@ async function menuPrompt() {
                 ]
             }
         ]);
-    }
 
-    catch (err) {
+        switch (selection) {
+            case 'View all employees':
+                await viewAllEmployees();
+                break;
+            case 'Add Employee':
+                await addEmployee();
+                break;
+            case 'View all roles':
+                await viewAllRoles();
+                break;
+            case 'Add a role':
+                await addRole();
+                break;
+            case 'View All Departments':
+                await viewAllDepartments();
+                break;
+            case 'Add Department':
+                await addDepartment();
+                break;
+            case 'Exit':
+                console.log('Exiting...');
+                db.end(); // Close the database connection
+                process.exit(); // Exit the application
+                break;
+            default:
+                console.log('Invalid choice.\n');
+                menuPrompt();
+        }
+    } catch (err) {
         console.error('Error:', err);
     }
 }
