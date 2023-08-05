@@ -1,6 +1,12 @@
-const mysql = require('mysql2/promise'); 
+const mysql = require('mysql2/promise');
 const inquirer = require('inquirer');
-const { menuPrompt }  = require('./lib/queries');
+const { viewAllDepartments,
+    viewAllRoles,
+    viewAllEmployees,
+    addDepartment,
+    addRole,
+    addEmployee
+} = require('./lib/queries');
 
 // Create a connection to db
 const db = mysql.createConnection({
@@ -66,3 +72,5 @@ async function menuPrompt() {
         console.error('Error:', err);
     }
 }
+
+menuPrompt();
