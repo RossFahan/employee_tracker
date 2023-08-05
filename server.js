@@ -80,6 +80,55 @@ function addDepartment() {
     });
 }
 
+// Function to add a new role
+function addRole() {
+    // Fetch available departments from the database
+    db.query('SELECT id, name FROM department', (err, results) => {
+        if (err) {
+            console.error('Error fetching departments:', err);
+            return;
+        }
+
+        const departmentChoices = results.map(department => ({
+            name: department.name,
+            value: department.id
+        }));
+
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'What is the name of the role?:'
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'What is the salary of the role?:'
+            },
+            {
+                type: 'list',
+                name: 'departmentId',
+                message: 'What department does the role belong to?:',
+                choices: departmentChoices
+            }
+        ]).then((answers) => {
+            const { title, salary, departmentId } = answers;
+            db.query('INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)',
+                [title, salary, departmentId],
+                (err) => {
+                    if (err) {
+                        console.error('Error adding role:', err);
+                    } else {
+                        console.log('Role added successfully.');
+                    }
+                    menuPrompt();
+                }
+            );
+        }).catch((err) => {
+            console.error('Error:', err);
+        });
+    });
+}
 
 // Function to display main menu and handle user input
 function menuPrompt() {
